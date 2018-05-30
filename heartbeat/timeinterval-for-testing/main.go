@@ -1,9 +1,9 @@
 package main
 
 import (
-	"time"
-	"math/rand"
 	"fmt"
+	"math/rand"
+	"time"
 )
 
 func main() {
@@ -24,7 +24,6 @@ func main() {
 			fmt.Printf("Initializing objects... ready after %d seconds\n", duration)
 			time.Sleep(duration * time.Second)
 
-
 			fmt.Println("Database connected")
 			time.Sleep(1 * time.Second)
 			fmt.Println("Elasticsearch connected")
@@ -33,7 +32,6 @@ func main() {
 			time.Sleep(1 * time.Second)
 
 			workgen := time.Tick(200 * time.Millisecond)
-
 
 			for _, n := range intSlice {
 				select {
@@ -50,7 +48,7 @@ func main() {
 			}
 
 		}()
-	return heartbeatStream, resultStream
+		return heartbeatStream, resultStream
 	}
 
 	done := make(chan interface{})

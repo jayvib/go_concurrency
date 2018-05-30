@@ -13,7 +13,7 @@ func Open() *APIConnection {
 }
 
 func Per(eventCount int, duration time.Duration) rate.Limit {
-	return rate.Every(duration/time.Duration(eventCount))
+	return rate.Every(duration / time.Duration(eventCount))
 }
 
 type APIConnection struct {

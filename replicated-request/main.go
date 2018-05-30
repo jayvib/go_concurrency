@@ -1,10 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"math/rand"
 	"sync"
 	"time"
-	"math/rand"
-	"fmt"
 )
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 		started := time.Now()
 		defer wg.Done()
 
-		simulatedLoadTime := time.Duration(1 + rand.Intn(5)) * time.Second
+		simulatedLoadTime := time.Duration(1+rand.Intn(5)) * time.Second
 
 		select {
 		case <-done:

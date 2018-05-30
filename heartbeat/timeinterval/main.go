@@ -1,8 +1,8 @@
 package main
 
 import (
-	"time"
 	"fmt"
+	"time"
 )
 
 func main() {
@@ -10,7 +10,6 @@ func main() {
 	doWork := func(done <-chan interface{}, pulseInterval time.Duration) (<-chan interface{}, <-chan time.Time) {
 		heartbeat := make(chan interface{})
 		results := make(chan time.Time)
-
 
 		go func() {
 			defer close(heartbeat)
@@ -21,7 +20,7 @@ func main() {
 
 			sendPulse := func() {
 				select {
-				case heartbeat <-struct{}{}:
+				case heartbeat <- struct{}{}:
 				default:
 				}
 			}
@@ -55,7 +54,7 @@ func main() {
 
 	done := make(chan interface{})
 
-	time.AfterFunc(10 * time.Second, func() { close(done) })
+	time.AfterFunc(10*time.Second, func() { close(done) })
 
 	const timeout = 2 * time.Second
 

@@ -1,11 +1,11 @@
 package main
 
 import (
+	"context"
+	"github.com/go_concurrency/rate-limit/api"
 	"log"
 	"os"
-	"github.com/go_concurrency/rate-limit/api"
 	"sync"
-	"context"
 )
 
 func main() {
