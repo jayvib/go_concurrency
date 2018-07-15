@@ -12,6 +12,8 @@ import (
 // confinement is an idea that whoever make the channel is also the one responsible
 // closing it.
 
+type consumerFunc func(<-chan int, string) <-chan string
+
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 }
@@ -52,13 +54,27 @@ func consumerWithWaitGroup(wg *sync.WaitGroup, ch <-chan int, name string) {
 	}
 }
 
-func multiplyBy(x int) func(intCh <-chan int, name string) (<-chan string) {
+func multiplyBy(x int) consumerFunc {
 	return func(intCh <-chan int, name string) <-chan string {
 		resultChan := make(chan string)
 		go func() {
 			defer close(resultChan)
 			for v := range intCh {
 				res := fmt.Sprintf("%s multiplied number %d by %d: %d\n", name, v, x, v*x)
+				resultChan <- res
+			}
+		}()
+		return resultChan
+	}
+}
+
+func numberCruncher(crunchFunc func(int) int) consumerFunc { // beautiful!!
+	return func(intChan <-chan int, name string) <-chan string {
+		resultChan := make(chan string)
+		go func() {
+			defer close(resultChan)
+			for v := range intChan {
+				res := fmt.Sprintf("%s crunche the number %d and turn into %d", name, v, crunchFunc(v))
 				resultChan <- res
 			}
 		}()
@@ -80,9 +96,27 @@ func main() {
 
 	// Example using the function currying and closure for having a generic function muliplier. This is an example
 	// of fan-in-fan-out-fain-in example.
-	multiplyFn := multiplyBy(10)
-	resChan1 := multiplyFn(intChan, "Mars")
-	resChan2 := multiplyFn(intChan, "Jupiter")
+	multipConFn := numberCruncher(func(x int) int {
+		return x * 10
+	})
+
+	addConFn := numberCruncher(func(x int) int {
+		return x + 2345
+	})
+
+	manipulaterFn := func(ch <-chan int) <-chan int { // this pattern has similarity with middleware
+		res := make(chan int)
+		go func() {
+			defer close(res)
+			for v := range ch {
+				res <- v + 1000000000000000001
+			}
+		}()
+		return res
+	}
+
+	resChan1 := multipConFn(intChan, "Mars")
+	resChan2 := addConFn(manipulaterFn(intChan), "Jupiter")
 
 	// using for-select for collecting the results
 	resChan1Done := false
@@ -94,15 +128,17 @@ func main() {
 				fmt.Println("resChan1 done...")
 				resChan1Done = true
 				resChan1 = nil // so that the next loop it will be block forever.
+				continue
 			}
-			fmt.Print(v)
+			fmt.Println(v)
 		case v, ok := <-resChan2:
 			if !ok {
 				fmt.Println("resChan2 done...")
 				resChan2Done = true
 				resChan2 = nil // so that the next loop it will be block forever.
+				continue
 			}
-			fmt.Print(v)
+			fmt.Println(v)
 		}
 	}
 
