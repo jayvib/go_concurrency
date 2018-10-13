@@ -40,7 +40,7 @@ func main() {
 			for i := 0; i < 10; i++ {
 				stream := make(chan interface{}, 1)
 				stream <- i
-				close(stream) // a channel that has 1 buffered value that is ready to write but can't be written
+				close(stream) // a channel that has 1 buffered value that is ready to read but can't be written
 				chanStream <- stream
 			}
 		}()
