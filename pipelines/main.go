@@ -11,6 +11,22 @@ import (
 	"syscall"
 )
 
+func subtractBy(x int) func(done <-chan interface{}, intStream <-chan int) <-chan int {
+	return func(done <-chan interface{}, intStream <-chan int) <-chan int {
+		outChan := make(chan int)
+		go func() {
+			for v := range intStream {
+				select {
+				case <-done:
+					return
+				case outChan <- v-x:
+				}
+			}
+		}()
+		return outChan
+	}
+}
+
 func main() {
 	generator := func(done <-chan interface{}, integers ...int) <-chan int {
 		intStream := make(chan int, len(integers))
@@ -58,6 +74,7 @@ func main() {
 		return addedStream
 	}
 
+
 	done := make(chan interface{})
 	c := make(chan os.Signal, 1)
 
@@ -69,7 +86,7 @@ func main() {
 	}()
 
 	intStream := generator(done, 1, 2, 3, 4)
-	pipeline := multiply(done, add(done, multiply(done, intStream, 2), 1), 2)
+	pipeline := subtractBy(10)(done, multiply(done, add(done, multiply(done, intStream, 2), 1), 2)) // y-combinator
 
 	for v := range pipeline {
 		time.Sleep(1000 * time.Millisecond)
