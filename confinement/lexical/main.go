@@ -15,7 +15,7 @@ func main() {
 		return results
 	}
 
-	consumer := func(ch <-chan int) {
+	consumer := func(ch <-chan int) { // confine to read-only channel.
 		for v := range ch {
 			fmt.Println("Receive:", v)
 		}
