@@ -36,10 +36,11 @@ func main() {
 	}
 
 	done := make(chan interface{})
-	defer close(done)
+	defer close(done) // this will tell the repeat function to do cleanup.
 
 	for num := range take(done, repeat(done, 1), 10) {
 		fmt.Printf("%v", num)
+		fmt.Printf("%T\n", num)
 	}
 
 }
