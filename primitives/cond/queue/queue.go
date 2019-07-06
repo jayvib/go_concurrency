@@ -6,6 +6,9 @@ import (
 	"time"
 )
 
+// I found a good reference for Conditional Variable:
+// https://kaviraj.me/understanding-condition-variable-in-go/
+
 func main() {
 	c := sync.NewCond(&sync.Mutex{})
 	queue := make([]interface{}, 0, 10)
@@ -22,7 +25,7 @@ func main() {
 	for i := 0; i < 10; i++ {
 		c.L.Lock()
 		for len(queue) == 2 {
-			c.Wait()
+			c.Wait() // this will do unlock internally
 		}
 		fmt.Println("Adding to queue")
 		queue = append(queue, struct{}{})
