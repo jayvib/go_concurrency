@@ -18,3 +18,7 @@ func take(ctx context.Context, valueStream <-chan interface{}, num int) <-chan i
 	}()
 	return out
 }
+
+func Take(ctx context.Context, valueStream <-chan interface{}, num int) <-chan interface{} {
+	return take(ctx, valueStream, num)
+}
